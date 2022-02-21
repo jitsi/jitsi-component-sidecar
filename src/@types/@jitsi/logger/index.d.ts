@@ -13,5 +13,5 @@ declare module '@jitsi/logger' {
         warn(message: string, ...params: any[]): void;
     }
 
-    export function getLogger(id: string, transports: Array<Object> | undefined, config: Object): Logger;
+    export function getUntrackedLogger(id: string, transports: Array<Object> | undefined, config: Object): Logger;
 }
