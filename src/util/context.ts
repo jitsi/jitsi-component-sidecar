@@ -39,7 +39,7 @@ export function generateNewContext(contextId?: string): Context {
     if (!resultedContextId) {
         resultedContextId = shortid.generate();
     }
-    const ctxLogger = jitsiLogger.getLogger(resultedContextId, undefined, {})
+    const ctxLogger = jitsiLogger.getUntrackedLogger(resultedContextId, undefined, {})
 
     return new Context(ctxLogger, start, resultedContextId);
 }
@@ -62,7 +62,7 @@ export function injectContext(
     const requestIdHeader = req.header('X-Request-Id');
     const start = Date.now();
     const reqId = requestIdHeader ? requestIdHeader : shortid.generate();
-    const reqLogger = jitsiLogger.getLogger(reqId, undefined, {});
+    const reqLogger = jitsiLogger.getUntrackedLogger(reqId, undefined, {});
 
     req.context = new Context(reqLogger, start, reqId);
     res.header('X-Request-Id', reqId);
@@ -85,12 +85,14 @@ export function accessLogger(
     const accessLog = function() {
         if (!logged) {
             logged = true;
-            req.context.logger.info('', {
+            const requestInfo = JSON.stringify({
                 m: req.method,
                 u: req.originalUrl,
                 s: res.statusCode,
                 d: Math.abs(Date.now() - req.context.start)
             });
+
+            req.context.logger.info(`${requestInfo}`);
         }
     };
 

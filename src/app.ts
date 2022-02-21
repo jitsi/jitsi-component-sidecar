@@ -12,7 +12,7 @@ import { generateNewContext } from './util/context';
 import logger from './util/logger';
 import WsClient from './ws_client';
 
-logger.info('Starting up jitsi-component-sidecar service with config', { config });
+logger.info(`Starting up jitsi-component-sidecar service with config: ${JSON.stringify(config)}`);
 
 const jwtSigningKey = fs.readFileSync(config.AsapSigningKeyFile);
 const app = express();
@@ -26,7 +26,7 @@ const asapRequest = new AsapRequest({
     requestRetryCount: config.RequestRetryCount
 });
 
-const initCtx = generateNewContext();
+const wsClientCtx = generateNewContext('ws-client');
 const url = config.WSServerUrl;
 const path = config.WSServerPath;
 const wsClient = new WsClient({
@@ -34,7 +34,6 @@ const wsClient = new WsClient({
     path,
     asapRequest,
     commanderService: new CommanderService({
-        ctx: initCtx,
         environment: config.Environment,
         componentKey: config.ComponentKey,
         componentNick: config.ComponentNick,
@@ -44,7 +43,7 @@ const wsClient = new WsClient({
         asapRequest,
         startRequestTimeoutMs: config.StartRequestTimeoutMs
     }),
-    ctx: initCtx
+    ctx: wsClientCtx
 });
 
 const metadata = <unknown>config.ComponentMetadata;
@@ -86,14 +85,14 @@ restServer.init();
  * Loop for collecting component stats
  */
 async function pollForCollectingStats() {
-    const ctx = generateNewContext();
+    const ctx = generateNewContext('stats-collector');
 
     try {
         const statsReport = await statsCollector.retrieveStatsReport(ctx);
 
         statsReporter.setLatestStatsReport(statsReport);
     } catch (err) {
-        logger.error('Error collecting stats', { err });
+        logger.error(`Error collecting stats ${err}`, { err });
         statsReporter.setLatestStatsReport(undefined);
     }
     setTimeout(pollForCollectingStats, config.StatsPollingInterval * 1000);
@@ -103,12 +102,12 @@ async function pollForCollectingStats() {
  * Loop for polling component stats
  */
 async function pollForReportingStats() {
-    const ctx = generateNewContext();
+    const ctx = generateNewContext('stats-reporter');
 
     try {
         await statsReporter.reportStats(ctx);
     } catch (err) {
-        logger.info('Error reporting stats', { err });
+        logger.info(`Error reporting stats ${err}`, { err });
         statsReporter.setLatestStatsReport(undefined);
     }
     setTimeout(pollForReportingStats, config.StatsReportingInterval * 1000);
