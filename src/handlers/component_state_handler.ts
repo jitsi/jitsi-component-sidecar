@@ -64,7 +64,7 @@ export default class ComponentStateHandler {
             this.statsReporter.setLatestStatsReport(statsReport);
             await this.statsReporter.reportStats(ctx);
         } catch (err) {
-            logger.error('Error reporting stats', { err });
+            logger.error(`Error reporting stats: ${err}`, { err });
         }
 
         res.status(200);

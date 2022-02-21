@@ -67,14 +67,15 @@ export default class WsClient {
 
         this.socket.on('connect', () => {
             this.ctx.logger.info(
-                `[${this.socket.id}] Socket connected, using componentKey ${this.commanderService.getComponentKey()}`
+                `Socket connected, using componentKey ${this.commanderService.getComponentKey()}, `
+                + `socket=${this.socket.id}`
             );
         });
 
         this.socket.on('command', async (command: Command, callback: any) => {
             const ctx = generateNewContext(command.cmdId);
 
-            ctx.logger.debug('[${this.socket.id}] Received command ', { command });
+            ctx.logger.debug(`Received command ${JSON.stringify(command)}, socket=${this.socket.id}`);
 
             let commandResponse: CommandResponse;
 
@@ -83,8 +84,8 @@ export default class WsClient {
                     commandResponse = await this.commanderService.startComponent(ctx, command);
                 } catch (err) {
                     ctx.logger.error(
-                        `[${this.socket.id}] Error starting component ${command.payload.componentKey}. 
-                        Error is: ${err}`, { err }
+                        `Error starting component ${command.payload.componentKey}. 
+                        Error is: ${err}, socket=${this.socket.id}`, { err }
                     );
                     commandResponse = CommandResponseBuilder.errorCommandResponse(command.cmdId, command.type, {
                         componentKey: command.payload.componentKey,
@@ -97,8 +98,8 @@ export default class WsClient {
                     commandResponse = await this.commanderService.stopComponent(ctx, command);
                 } catch (err) {
                     ctx.logger.error(
-                        `[${this.socket.id}] Error stopping component ${command.payload.componentKey}. 
-                        Error is: ${err}`, { err }
+                        `Error stopping component ${command.payload.componentKey}. 
+                        Error is: ${err}, socket=${this.socket.id}`, { err }
                     );
                     commandResponse = CommandResponseBuilder.errorCommandResponse(command.cmdId, command.type, {
                         componentKey: command.payload.componentKey,
@@ -129,8 +130,8 @@ export default class WsClient {
         if (this.socket.connected) {
             const volatileEvents = config.VolatileEvents;
 
-            ctx.logger.info(`[${this.socket.id}] Emitting status updates, 
-            volatile ${volatileEvents}`, { componentStatus });
+            ctx.logger.info(`Emitting status updates, 
+            volatile ${volatileEvents}, componentStatus ${JSON.stringify(componentStatus)}, socket=${this.socket.id}`);
             if (volatileEvents) {
                 this.socket.volatile.emit('status-updates', componentStatus, ctx);
             } else {

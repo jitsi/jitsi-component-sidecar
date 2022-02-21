@@ -29,10 +29,10 @@ export function middleware(
     }
 
     if (err.name === 'UnauthorizedError') {
-        l.info(`unauthorized token ${err}`);
+        l.info(`unauthorized token ${err}`, { err });
         res.status(401).send('invalid token...');
     } else {
-        l.error(`internal error ${err}`, { stack: err.stack });
+        l.error(`internal error ${err}`, { err });
         res.status(500).send('internal server error');
     }
 }

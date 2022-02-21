@@ -57,13 +57,13 @@ export default class StatsReporter {
 
         if (this.latestStatsReport) {
             body = this.latestStatsReport;
-            ctx.logger.debug('Stats report available, sending..', { body });
+            ctx.logger.debug(`Stats report available, sending.. ${JSON.stringify(body)}`);
         } else {
             body = {
                 component: this.componentDetails
             };
 
-            ctx.logger.debug('Stats report not available, only sending component info', { body });
+            ctx.logger.debug(`Stats report not available, only sending component info ${JSON.stringify(body)}`);
         }
 
         this.wsClient.emitStatusUpdate(ctx, body);

@@ -85,12 +85,14 @@ export function accessLogger(
     const accessLog = function() {
         if (!logged) {
             logged = true;
-            req.context.logger.info('', {
+            const requestInfo = JSON.stringify({
                 m: req.method,
                 u: req.originalUrl,
                 s: res.statusCode,
                 d: Math.abs(Date.now() - req.context.start)
             });
+
+            req.context.logger.info(`${requestInfo}`);
         }
     };
 

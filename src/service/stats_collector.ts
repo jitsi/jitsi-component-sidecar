@@ -41,8 +41,7 @@ export default class StatsCollector {
                 return response;
             }
         } catch (err) {
-            ctx.logger.error('RetrieveStats Error', { err,
-                url: this.retrieveUrl });
+            ctx.logger.error(`RetrieveStats Error: ${err}, from url: ${this.retrieveUrl}`, { err });
         }
     }
 
@@ -62,7 +61,7 @@ export default class StatsCollector {
             timestamp: ts.getTime()
         };
 
-        ctx.logger.debug('Stats report', { report });
+        ctx.logger.debug(`Stats report ${JSON.stringify(report)}`);
 
         return report;
     }

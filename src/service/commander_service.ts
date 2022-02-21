@@ -137,7 +137,6 @@ export interface StartComponentRequest {
 }
 
 export interface ComponentCommanderOptions {
-    ctx: Context;
     environment: string;
     asapRequest: AsapRequest;
     startRequestTimeoutMs: number;
@@ -153,7 +152,6 @@ export interface ComponentCommanderOptions {
  * See supported Jibri commands https://github.com/jitsi/jibri/blob/master/doc/http_api.md
  */
 export class CommanderService {
-    private ctx: Context;
     private readonly environment: string;
     private asapRequest: AsapRequest;
     private readonly startRequestTimeoutMs: number;
@@ -168,7 +166,6 @@ export class CommanderService {
      * @param options
      */
     constructor(options: ComponentCommanderOptions) {
-        this.ctx = options.ctx;
         this.environment = options.environment;
         this.asapRequest = options.asapRequest;
         this.startRequestTimeoutMs = options.startRequestTimeoutMs;
@@ -189,9 +186,8 @@ export class CommanderService {
         const startComponentPayload: StartComponentPayload = command.payload.componentRequest;
         const commandType = command.type;
 
-        ctx.logger.info(`Processing start command: ${commandType} for ${requestedComponent}`, {
-            startComponentPayload
-        });
+        ctx.logger.info(`Processing start command: ${commandType} for ${requestedComponent}, `
+            + `payload ${JSON.stringify(startComponentPayload)}`);
 
         let commandResponse: CommandResponse;
 
@@ -321,7 +317,7 @@ export class CommanderService {
             try {
                 await this.asapRequest.postJson(ctx, this.stopComponentUrl, {}, {});
             } catch (error) {
-                ctx.logger.info(`Component service stop action failed with error: ${error}`);
+                ctx.logger.info(`Component service stop action failed with error: ${error}`, { error });
             }
         }
     }
