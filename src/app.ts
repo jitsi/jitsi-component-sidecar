@@ -7,7 +7,7 @@ import RestServer from './rest_server';
 import AsapRequest from './service/asap_request';
 import { CommanderService } from './service/commander_service';
 import StatsCollector from './service/stats_collector';
-import StatsReporter, { ComponentDetails } from './service/stats_reporter';
+import StatsReporter, { ComponentDetails, ComponentType } from './service/stats_reporter';
 import { generateNewContext } from './util/context';
 import logger from './util/logger';
 import WsClient from './ws_client';
@@ -53,6 +53,7 @@ const componentDetails = <ComponentDetails>{
     componentKey: config.ComponentKey,
     environment: config.Environment,
     region: config.Region,
+    componentType: config.ComponentType as keyof typeof ComponentType,
     group: config.ComponentGroup,
     ...<ComponentDetails>metadata
 };

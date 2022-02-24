@@ -1,8 +1,15 @@
 import { Context } from '../util/context';
 import WsClient from '../ws_client';
 
+export enum ComponentType {
+    Jibri = 'JIBRI',
+    SipJibri = 'SIP-JIBRI',
+    Jigasi = 'JIGASI',
+}
+
 export interface ComponentDetails {
     componentKey: string;
+    componentType: ComponentType;
     hostname: string;
     environment: string;
     region: string;
@@ -17,9 +24,14 @@ export interface StatsReporterOptions {
     componentDetails: ComponentDetails;
 }
 
+export interface ComponentStatus {
+    jibriStatus?: unknown;
+    jigasiStatus?: unknown;
+}
+
 export interface StatsReport {
     component: ComponentDetails;
-    stats?: unknown;
+    stats?: ComponentStatus;
     timestamp?: number;
 }
 

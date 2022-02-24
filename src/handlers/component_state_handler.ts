@@ -13,7 +13,7 @@ interface ComponentMetadata {
 }
 
 interface ComponentState {
-    componentId: string;
+    jibriId: string;
     status: unknown;
     timestamp?: number;
     metadata: ComponentMetadata;
@@ -42,12 +42,7 @@ export default class ComponentStateHandler {
         const ctx = req.context;
         const componentState: ComponentState = req.body;
 
-        if (!componentState.status) {
-            res.sendStatus(400);
-
-            return;
-        }
-        if (!componentState.componentId) {
+        if (!componentState.status || !componentState.jibriId) {
             res.sendStatus(400);
 
             return;

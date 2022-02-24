@@ -55,6 +55,7 @@ export default {
     WSServerPath: env.WS_SERVER_PATH,
     Environment: env.ENVIRONMENT,
     Region: env.REGION,
+    ComponentType: env.COMPONENT_TYPE,
     AsapSigningKeyFile: env.ASAP_SIGNING_KEY_FILE,
     AsapJwtKid: env.ASAP_JWT_KID,
     AsapJwtIss: env.ASAP_JWT_ISS,
