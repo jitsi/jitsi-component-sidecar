@@ -41,22 +41,21 @@ const wsClient = new WsClient({
         stopComponentUrl: config.StopComponentURL,
         enableStopComponent: config.EnableStopComponent,
         asapRequest,
-        startRequestTimeoutMs: config.StartRequestTimeoutMs
+        startRequestTimeoutMs: config.StartRequestTimeoutMs,
+        sipClientUsername: config.SipClientUserName,
+        sipClientPassword: config.SipClientPassword
     }),
     ctx: wsClientCtx
 });
 
-const metadata = <unknown>config.ComponentMetadata;
-const componentDetails = <ComponentDetails>{
-    componentId: config.ComponentId,
-    hostname: config.Hostname,
-    componentKey: config.ComponentKey,
-    environment: config.Environment,
-    region: config.Region,
-    componentType: config.ComponentType as keyof typeof ComponentType,
-    group: config.ComponentGroup,
-    ...<ComponentDetails>metadata
-};
+const componentDetails: ComponentDetails = config.ComponentMetadata as unknown as ComponentDetails;
+
+componentDetails.componentId = config.ComponentId;
+componentDetails.componentKey = config.ComponentKey;
+componentDetails.componentType = config.ComponentType as ComponentType;
+componentDetails.environment = config.Environment;
+componentDetails.region = config.Region;
+componentDetails.hostname = config.Hostname;
 
 const statsCollector = new StatsCollector({
     retrieveUrl: config.StatsRetrieveURL,

@@ -145,6 +145,8 @@ export interface ComponentCommanderOptions {
     startComponentUrl: string;
     stopComponentUrl: string;
     enableStopComponent: boolean;
+    sipClientUsername: string;
+    sipClientPassword: string;
 }
 
 /**
@@ -160,6 +162,8 @@ export class CommanderService {
     private readonly startComponentUrl: string;
     private readonly stopComponentUrl: string;
     private readonly enableStoComponent: boolean;
+    private readonly sipClientUsername: string;
+    private readonly sipClientPassword: string;
 
     /**
      * Constructor
@@ -174,6 +178,8 @@ export class CommanderService {
         this.startComponentUrl = options.startComponentUrl;
         this.stopComponentUrl = options.stopComponentUrl;
         this.enableStoComponent = options.enableStopComponent;
+        this.sipClientUsername = options.sipClientUsername;
+        this.sipClientPassword = options.sipClientPassword;
     }
 
     /**
@@ -205,6 +211,11 @@ export class CommanderService {
                 startComponentRequest.callParams.callStatsUsernameOverride = this.componentNick
                     .concat(' ')
                     .concat(startComponentRequest.callParams.callStatsUsernameOverride);
+            }
+
+            if (startComponentRequest.sipClientParams) {
+                startComponentRequest.sipClientParams.userName = this.sipClientUsername;
+                startComponentRequest.sipClientParams.password = this.sipClientPassword;
             }
 
             try {
