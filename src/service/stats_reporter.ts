@@ -8,6 +8,7 @@ export enum ComponentType {
 }
 
 export interface ComponentDetails {
+    componentId: string;
     componentKey: string;
     componentType: ComponentType;
     hostname: string;

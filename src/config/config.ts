@@ -40,12 +40,17 @@ const env = envalid.cleanEnv(process.env, {
         default: ''
     }),
     ENABLE_STOP_INSTANCE: envalid.bool({ default: true }),
+    ENVIRONMENT: envalid.str(),
+    REGION: envalid.str(),
+    COMPONENT_TYPE: envalid.str(),
     INSTANCE_KEY: envalid.str(),
     INSTANCE_NICK: envalid.str({ default: 'jibri' }),
     INSTANCE_METADATA: envalid.json({ default: '{}' }),
     INSTANCE_ID: envalid.str({ default: '' }),
     HOSTNAME: envalid.str({ default: '' }),
-    VOLATILE_EVENTS: envalid.bool({ default: true })
+    VOLATILE_EVENTS: envalid.bool({ default: true }),
+    SIP_CLIENT_USERNAME: envalid.str({ default: '' }),
+    SIP_CLIENT_PASSWORD: envalid.str({ default: '' })
 });
 
 export default {
@@ -53,9 +58,6 @@ export default {
     HTTPServerPort: env.PORT,
     WSServerUrl: env.WS_SERVER_URL,
     WSServerPath: env.WS_SERVER_PATH,
-    Environment: env.ENVIRONMENT,
-    Region: env.REGION,
-    ComponentType: env.COMPONENT_TYPE,
     AsapSigningKeyFile: env.ASAP_SIGNING_KEY_FILE,
     AsapJwtKid: env.ASAP_JWT_KID,
     AsapJwtIss: env.ASAP_JWT_ISS,
@@ -73,11 +75,16 @@ export default {
     StartComponentURL: env.START_INSTANCE_URL,
     StopComponentURL: env.STOP_INSTANCE_URL,
     EnableStopComponent: env.ENABLE_STOP_INSTANCE,
+    Environment: env.ENVIRONMENT,
+    Region: env.REGION,
+    ComponentType: env.COMPONENT_TYPE,
     ComponentKey: env.INSTANCE_KEY,
     ComponentNick: env.INSTANCE_NICK,
     ComponentMetadata: env.INSTANCE_METADATA,
     ComponentId: env.INSTANCE_ID,
     ComponentGroup: env.INSTANCE_GROUP,
     Hostname: env.HOSTNAME,
-    VolatileEvents: env.VOLATILE_EVENTS
+    VolatileEvents: env.VOLATILE_EVENTS,
+    SipClientUserName: env.SIP_CLIENT_USERNAME,
+    SipClientPassword: env.SIP_CLIENT_PASSWORD
 };
