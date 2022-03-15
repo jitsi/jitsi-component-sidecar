@@ -8,15 +8,18 @@ export interface ComponentStateHandlerOptions {
     componentDetails: ComponentDetails;
 }
 
-interface ComponentMetadata {
-    [key: string]: string;
+export interface JibriStatus {
+    busyStatus: unknown,
+    health: unknown
+}
+
+export interface JigasiStatus {
 }
 
 interface ComponentState {
     jibriId: string;
-    status: unknown;
-    timestamp?: number;
-    metadata: ComponentMetadata;
+    sessionId: string;
+    status: JibriStatus | JigasiStatus;
 }
 
 /**
@@ -51,7 +54,8 @@ export default class ComponentStateHandler {
         const ts = new Date();
         const statsReport = <StatsReport>{
             component: this.componentDetails,
-            stats: componentState,
+            sessionId: componentState.sessionId,
+            status: componentState.status,
             timestamp: ts.getTime()
         };
 
