@@ -112,11 +112,13 @@ export enum ResponseType {
 
 export interface ResponsePayload {
     componentKey: string;
+    sessionId?: string;
     sipUsername?: string;
 }
 
 export interface ErrorResponsePayload {
     componentKey: string;
+    sessionId?: string;
     errorKey: string;
     errorMessage: string;
 }
@@ -227,6 +229,7 @@ export class CommanderService {
 
                     return CommandResponseBuilder.successCommandResponse(command.cmdId, commandType, {
                         componentKey: this.componentKey,
+                        sessionId: startComponentPayload.sessionId,
                         sipUsername:
                             startComponentRequest.sipClientParams && startComponentRequest.sipClientParams.userName
                                 ? startComponentRequest.sipClientParams.userName.split('@')[0]
@@ -238,6 +241,7 @@ export class CommanderService {
                 );
                 commandResponse = CommandResponseBuilder.errorCommandResponse(command.cmdId, commandType, {
                     componentKey: requestedComponent,
+                    sessionId: startComponentPayload.sessionId,
                     errorKey: 'component.not.started',
                     errorMessage: `Component could not start. Status code is ${responseStatusCode}`
                 });
@@ -249,6 +253,7 @@ export class CommanderService {
 
                 commandResponse = CommandResponseBuilder.errorCommandResponse(command.cmdId, commandType, {
                     componentKey: requestedComponent,
+                    sessionId: startComponentPayload.sessionId,
                     errorKey: 'component.not.started',
                     errorMessage: `Component could not start. Error is ${getDisplayedErrorMessage(err)}`
                 });
@@ -257,6 +262,7 @@ export class CommanderService {
             ctx.logger.error(`Invalid component: ${requestedComponent}`);
             commandResponse = CommandResponseBuilder.errorCommandResponse(command.cmdId, commandType, {
                 componentKey: requestedComponent,
+                sessionId: startComponentPayload.sessionId,
                 errorKey: 'component.not.started',
                 errorMessage: 'Component does not exist here'
             });
