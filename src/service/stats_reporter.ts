@@ -1,3 +1,4 @@
+import { JibriStatus, JigasiStatus } from '../handlers/component_state_handler';
 import { Context } from '../util/context';
 import WsClient from '../ws_client';
 
@@ -25,14 +26,10 @@ export interface StatsReporterOptions {
     componentDetails: ComponentDetails;
 }
 
-export interface ComponentStatus {
-    jibriStatus?: unknown;
-    jigasiStatus?: unknown;
-}
-
 export interface StatsReport {
     component: ComponentDetails;
-    stats?: ComponentStatus;
+    sessionId?: string;
+    status?: JibriStatus | JigasiStatus;
     timestamp?: number;
 }
 

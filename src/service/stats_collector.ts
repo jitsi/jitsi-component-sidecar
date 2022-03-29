@@ -1,7 +1,12 @@
+import { JibriStatus, JigasiStatus } from '../handlers/component_state_handler';
 import { Context } from '../util/context';
 
 import AsapRequest from './asap_request';
-import { ComponentDetails, ComponentType, StatsReport } from './stats_reporter';
+import { ComponentDetails, StatsReport } from './stats_reporter';
+
+export interface StatsResponse {
+    status?: JibriStatus | JigasiStatus;
+}
 
 export interface StatsCollectorOptions {
     retrieveUrl: string;
@@ -33,7 +38,7 @@ export default class StatsCollector {
      * Response will look different based on component type
      * eg. for Jibri {"status":{"busyStatus":"IDLE","health":{"healthStatus":"HEALTHY","details":{}}}}
      */
-    private async retrieveStats(ctx: Context): Promise<unknown> {
+    private async retrieveStats(ctx: Context): Promise<StatsResponse> {
         try {
             const response = await this.asapRequest.getJson(ctx, this.retrieveUrl);
 
@@ -49,27 +54,18 @@ export default class StatsCollector {
      * @param ctx
      */
     async retrieveStatsReport(ctx: Context): Promise<StatsReport> {
-        let stats = await this.retrieveStats(ctx);
+        let stats: StatsResponse = await this.retrieveStats(ctx);
 
         if (!stats) {
             stats = {};
         }
-        const componentStatus: any = {}
-
-        switch (this.componentDetails.componentType) {
-        case ComponentType.Jibri:
-        case ComponentType.SipJibri:
-            componentStatus.jibriStatus = stats;
-            break
-        case ComponentType.Jigasi:
-            componentStatus.jigasiStatus = stats;
-            break
-        }
 
         const ts = new Date();
+
+        // @ts-ignore
         const report = <StatsReport>{
             component: this.componentDetails,
-            stats: componentStatus,
+            status: stats.status,
             timestamp: ts.getTime()
         };
 
