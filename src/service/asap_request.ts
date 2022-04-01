@@ -83,7 +83,7 @@ export default class AsapRequest {
      * @param url
      */
     async getJson(ctx: Context, url: string): Promise<CancelableRequest> {
-        ctx.logger.debug(`Sending GET ${url}`);
+        ctx.logger.debug(`Sending GET ${url}, timeout: ${this.requestTimeoutMs}`);
         const response = await got.get(url, {
             headers: {
                 Authorization: `Bearer ${this.authToken()}`
@@ -110,7 +110,10 @@ export default class AsapRequest {
             body: unknown,
             requestOptions: OverrideableRequestOptions
     ): Promise<CancelableRequest> {
-        ctx.logger.info(`Sending POST ${url}`);
+        const actualRequestTimeoutMs = requestOptions.requestTimeoutMs
+            ? requestOptions.requestTimeoutMs : this.requestTimeoutMs;
+
+        ctx.logger.info(`Sending POST ${url}, timeout: ${actualRequestTimeoutMs}`);
 
         // by default, got library does not retry post requests
         // we don't need to change this behavior for now
@@ -121,7 +124,7 @@ export default class AsapRequest {
             },
             json: body,
             responseType: 'json',
-            timeout: requestOptions.requestTimeoutMs ? requestOptions.requestTimeoutMs : this.requestTimeoutMs
+            timeout: actualRequestTimeoutMs
         });
 
         if (response.statusCode === 200) {
