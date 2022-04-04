@@ -166,7 +166,7 @@ export class CommanderService {
     private readonly componentNick: string;
     private readonly startComponentUrl: string;
     private readonly stopComponentUrl: string;
-    private readonly enableStoComponent: boolean;
+    private readonly enableStopComponent: boolean;
     private readonly sipClientUsername: string;
     private readonly sipClientPassword: string;
 
@@ -181,7 +181,7 @@ export class CommanderService {
         this.componentNick = options.componentNick ? options.componentNick : 'componentNick';
         this.startComponentUrl = options.startComponentUrl;
         this.stopComponentUrl = options.stopComponentUrl;
-        this.enableStoComponent = options.enableStopComponent;
+        this.enableStopComponent = options.enableStopComponent;
         this.sipClientUsername = options.sipClientUsername;
         this.sipClientPassword = options.sipClientPassword;
     }
@@ -251,7 +251,10 @@ export class CommanderService {
             } catch (err) {
                 ctx.logger.error(`Error starting component ${requestedComponent}. Error is: ${err}`, { err });
 
-                await this.safeStopComponent(ctx);
+                // Especially useful in case of timeout, when we don't know if the component started
+                // Do not wait for the stop component to finish
+                this.safeStopComponent(ctx).then(() =>
+                    'Component was stopped after start request failed');
 
                 commandResponse = CommandResponseBuilder.errorCommandResponse(command.cmdId, commandType, {
                     componentKey: requestedComponent,
@@ -333,7 +336,7 @@ export class CommanderService {
      * @param ctx
      */
     private async safeStopComponent(ctx: Context): Promise<void> {
-        if (this.enableStoComponent) {
+        if (this.enableStopComponent) {
             try {
                 await this.asapRequest.postJson(ctx, this.stopComponentUrl, {}, {});
             } catch (error) {
