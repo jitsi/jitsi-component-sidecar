@@ -4,7 +4,7 @@ import config from './config/config';
 import AsapRequest from './service/asap_request';
 import { Command, CommandResponse, CommandType, CommanderService } from './service/commander_service';
 import CommandResponseBuilder from './service/response_builder';
-import { StatsReport } from './service/stats_reporter';
+import { SessionReport, StatsReport } from './service/stats_reporter';
 import { Context, generateNewContext } from './util/context';
 import { getDisplayedErrorMessage } from './util/error_util';
 
@@ -17,6 +17,7 @@ export interface WsClientOptions {
 }
 
 /**
+ * * Configures the web socket client behavior
  */
 export default class WsClient {
     public url: string;
@@ -42,6 +43,7 @@ export default class WsClient {
     }
 
     /**
+     *  Configures the sockets
      */
     private sockets(): void {
         this.socket = io(this.url, {
@@ -57,6 +59,7 @@ export default class WsClient {
     }
 
     /**
+     * Configures websocket routes and behavior
      */
     private init(): void {
         this.socket.on('connect_error', (err: any) => {
@@ -123,22 +126,24 @@ export default class WsClient {
     }
 
     /**
+     * Send component and session status updates
      * @param ctx
-     * @param componentStatus
+     * @param eventName
+     * @param report
      */
-    public emitStatusUpdate(ctx: Context, componentStatus: StatsReport): void {
+    public emitUpdate(ctx: Context, eventName: string, report: StatsReport|SessionReport): void {
         if (this.socket.connected) {
             const volatileEvents = config.VolatileEvents;
 
-            ctx.logger.info(`Emitting status updates, 
-            volatile ${volatileEvents}, componentStatus ${JSON.stringify(componentStatus)}, socket=${this.socket.id}`);
+            ctx.logger.info(`Emitting ${eventName}, volatile ${volatileEvents}, 
+            report ${JSON.stringify(report)}, socket=${this.socket.id}`);
             if (volatileEvents) {
-                this.socket.volatile.emit('status-updates', componentStatus, ctx);
+                this.socket.volatile.emit(eventName, report, ctx);
             } else {
-                this.socket.emit('status-updates', componentStatus, ctx);
+                this.socket.emit(eventName, report, ctx);
             }
         } else {
-            ctx.logger.info('Could not emmit status updates, socket not connected');
+            ctx.logger.info('Could not emmit updates, socket not connected');
         }
     }
 }

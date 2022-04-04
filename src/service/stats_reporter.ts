@@ -1,4 +1,4 @@
-import { JibriStatus, JigasiStatus } from '../handlers/component_state_handler';
+import { ComponentFailure, JibriStatus, JigasiStatus, SessionStatus } from '../handlers/component_state_handler';
 import { Context } from '../util/context';
 import WsClient from '../ws_client';
 
@@ -26,14 +26,23 @@ export interface StatsReporterOptions {
     componentDetails: ComponentDetails;
 }
 
+export interface SessionReport {
+    sessionId: string;
+    status?: SessionStatus;
+    sipAddress?: string;
+    failure?: ComponentFailure;
+    shouldRetry?: boolean;
+    timestamp?: number;
+}
+
 export interface StatsReport {
     component: ComponentDetails;
-    sessionId?: string;
     status?: JibriStatus | JigasiStatus;
     timestamp?: number;
 }
 
 /**
+ * Component and sessions stats reporter
  */
 export default class StatsReporter {
     private wsClient: WsClient;
@@ -50,9 +59,11 @@ export default class StatsReporter {
 
         this.setLatestStatsReport = this.setLatestStatsReport.bind(this);
         this.reportStats = this.reportStats.bind(this);
+        this.reportSession = this.reportSession.bind(this);
     }
 
     /**
+     * Keep the latest component stats
      * @param statsReport
      */
     setLatestStatsReport(statsReport: StatsReport): void {
@@ -60,6 +71,7 @@ export default class StatsReporter {
     }
 
     /**
+     * Method for reporting component stats
      * @param ctx
      */
     async reportStats(ctx: Context): Promise<void> {
@@ -76,6 +88,16 @@ export default class StatsReporter {
             ctx.logger.debug(`Stats report not available, only sending component info ${JSON.stringify(body)}`);
         }
 
-        this.wsClient.emitStatusUpdate(ctx, body);
+        this.wsClient.emitUpdate(ctx, 'status-updates', body);
+    }
+
+    /**
+     * Method for reporting session stats
+     * @param ctx
+     * @param sessionReport
+     */
+    async reportSession(ctx: Context, sessionReport: SessionReport): Promise<void> {
+        ctx.logger.debug(`Session report available, sending.. ${JSON.stringify(sessionReport)}`);
+        this.wsClient.emitUpdate(ctx, 'session-updates', sessionReport);
     }
 }
