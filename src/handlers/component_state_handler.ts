@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import StatsReporter, { ComponentDetails, StatsReport } from '../service/stats_reporter';
+import StatsReporter, { ComponentDetails, SessionReport, StatsReport } from '../service/stats_reporter';
 import logger from '../util/logger';
 
 export interface ComponentStateHandlerOptions {
@@ -18,11 +18,52 @@ export interface JigasiStatus {
 
 interface ComponentState {
     jibriId: string;
-    sessionId: string;
     status: JibriStatus | JigasiStatus;
 }
 
+export enum SessionStatus {
+    ON = 'ON',
+    OFF = 'OFF',
+    PENDING = 'PENDING',
+    UNDEFINED = 'UNDEFINED'
+}
+
+export enum FailureReason {
+    BUSY='BUSY',
+    ERROR ='ERROR',
+    UNDEFINED = 'UNDEFINED'
+}
+
+export enum ErrorScope {
+    SESSION='SESSION',
+    SYSTEM='SYSTEM'
+}
+
+export interface ComponentError {
+    scope: ErrorScope,
+    detail: String
+}
+
+export interface ComponentFailure {
+    reason?: FailureReason,
+    error?: ComponentError
+}
+
+export interface JibriSession {
+    sessionId: string;
+    status: SessionStatus,
+    sipAddress?: string,
+    failure?: ComponentFailure,
+    shouldRetry?: boolean
+}
+
+interface ComponentSessionState {
+    jibriId: string;
+    session: JibriSession;
+}
+
 /**
+ * Handler for component and session status updates
  */
 export default class ComponentStateHandler {
     private statsReporter: StatsReporter;
@@ -38,6 +79,7 @@ export default class ComponentStateHandler {
     }
 
     /**
+     * Method for processing component stats
      * @param req
      * @param res
      */
@@ -54,7 +96,6 @@ export default class ComponentStateHandler {
         const ts = new Date();
         const statsReport = <StatsReport>{
             component: this.componentDetails,
-            sessionId: componentState.sessionId,
             status: componentState.status,
             timestamp: ts.getTime()
         };
@@ -62,11 +103,49 @@ export default class ComponentStateHandler {
         try {
             this.statsReporter.setLatestStatsReport(statsReport);
             await this.statsReporter.reportStats(ctx);
+
+            res.status(200);
+            res.send('{"status":"OK"}');
         } catch (err) {
             logger.error(`Error reporting stats: ${err}`, { err });
+
+            res.status(200);
+            res.send('{"status":"ERROR"}');
+        }
+    }
+
+    /**
+     * Method for processing session stats
+     * @param req
+     * @param res
+     */
+    async componentSessionStateWebhook(req: Request, res: Response): Promise<void> {
+        const ctx = req.context;
+        const sessionState: ComponentSessionState = req.body;
+
+        if (!sessionState.session || !sessionState.session.status || !sessionState.session.sessionId) {
+            res.sendStatus(400);
+
+            return;
         }
 
-        res.status(200);
-        res.send('{"status":"OK"}');
+        const ts = new Date();
+        const sessionReport = <SessionReport>{
+            ...sessionState.session,
+            timestamp: ts.getTime()
+        };
+
+        try {
+            await this.statsReporter.reportSession(ctx, sessionReport);
+
+            res.status(200);
+            res.send('{"status":"OK"}');
+        } catch (err) {
+            logger.error(`Error reporting session: ${err}`, { err });
+
+            res.status(200);
+            res.send('{"status":"ERROR"}');
+        }
+
     }
 }

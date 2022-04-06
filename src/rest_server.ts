@@ -66,12 +66,22 @@ export default class RestServer {
             res.send('healthy!');
         });
 
-        app.post('/hook/v1/status', async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-            try {
-                await this.componentStateHandler.componentStateWebhook(req, res);
-            } catch (err) {
-                next(err);
-            }
-        });
+        app.post('/hook/v1/status',
+            async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+                try {
+                    await this.componentStateHandler.componentStateWebhook(req, res);
+                } catch (err) {
+                    next(err);
+                }
+            });
+
+        app.post('/hook/v1/session/status',
+            async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+                try {
+                    await this.componentStateHandler.componentSessionStateWebhook(req, res);
+                } catch (err) {
+                    next(err);
+                }
+            });
     }
 }
