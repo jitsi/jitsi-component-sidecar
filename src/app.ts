@@ -41,7 +41,6 @@ const wsClient = new WsClient({
         stopComponentUrl: config.StopComponentURL,
         enableStopComponent: config.EnableStopComponent,
         asapRequest,
-        startRequestTimeoutMs: config.StartRequestTimeoutMs,
         sipClientUsername: config.SipClientUserName,
         sipClientPassword: config.SipClientPassword
     }),
