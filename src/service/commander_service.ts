@@ -118,7 +118,7 @@ export enum ResponseType {
 export interface ResponsePayload {
     componentKey: string;
     sessionId?: string;
-    sipUsername?: string;
+    metadata?: any;
 }
 
 export interface ErrorResponsePayload {
@@ -229,25 +229,22 @@ export class CommanderService {
                 if (responseStatusCode === 200) {
                     ctx.logger.info(`Started component ${requestedComponent}`);
 
-                    return CommandResponseBuilder.successCommandResponse(command.cmdId, commandType, {
+                    commandResponse = CommandResponseBuilder.successCommandResponse(command.cmdId, commandType, {
                         componentKey: this.componentKey,
+                        sessionId: startComponentPayload.sessionId });
+                    CommanderService.addMetadataToPayload(startComponentRequest,
+                        commandResponse.payload as ResponsePayload);
+                } else {
+                    ctx.logger.error(
+                        `Error staring component ${requestedComponent}. Status code is ${responseStatusCode}`
+                    );
+                    commandResponse = CommandResponseBuilder.errorCommandResponse(command.cmdId, commandType, {
+                        componentKey: requestedComponent,
                         sessionId: startComponentPayload.sessionId,
-                        sipUsername:
-                            startComponentRequest.sipClientParams && startComponentRequest.sipClientParams.userName
-                                ? startComponentRequest.sipClientParams.userName.split('@')[0]
-                                : null
+                        errorKey: 'component.not.started',
+                        errorMessage: `Component could not start. Status code is ${responseStatusCode}`
                     });
                 }
-                ctx.logger.error(
-                    `Error staring component ${requestedComponent}. Status code is ${responseStatusCode}`
-                );
-                commandResponse = CommandResponseBuilder.errorCommandResponse(command.cmdId, commandType, {
-                    componentKey: requestedComponent,
-                    sessionId: startComponentPayload.sessionId,
-                    errorKey: 'component.not.started',
-                    errorMessage: `Component could not start. Status code is ${responseStatusCode}`
-                });
-
             } catch (err) {
                 ctx.logger.error(`Error starting component ${requestedComponent}. Error is: ${err}`, { err });
 
@@ -274,6 +271,23 @@ export class CommanderService {
         }
 
         return commandResponse;
+    }
+
+    /**
+     * Add metadata on the response payload, if applicable
+     * @param startComponentRequest
+     * @param commandResponsePayload
+     * @private
+     */
+    private static addMetadataToPayload(startComponentRequest:StartComponentRequest,
+            commandResponsePayload:ResponsePayload) {
+        if (startComponentRequest.sipClientParams) {
+            commandResponsePayload.metadata = {
+                sipUsername: startComponentRequest.sipClientParams.userName
+                    ? startComponentRequest.sipClientParams.userName.split('@')[0]
+                    : null
+            }
+        }
     }
 
     /**
