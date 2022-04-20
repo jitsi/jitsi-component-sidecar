@@ -22,7 +22,7 @@ const env = envalid.cleanEnv(process.env, {
     WS_SERVER_URL: envalid.str({ default: 'ws://localhost:8015' }),
     WS_SERVER_PATH: envalid.str({ default: '/jitsi-component-selector/ws' }),
     ASAP_SIGNING_KEY_FILE: envalid.str(),
-    ASAP_JWT_KID: envalid.str({ default: '' }),
+    ASAP_JWT_KID: envalid.str(),
     ASAP_JWT_ISS: envalid.str({ default: 'jitsi-component-sidecar' }),
     ASAP_JWT_AUD: envalid.str({ default: 'jitsi-component-selector' }),
     REQUEST_TIMEOUT_MS: envalid.num({ default: 8000 }),
