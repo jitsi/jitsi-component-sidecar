@@ -29,15 +29,9 @@ const env = envalid.cleanEnv(process.env, {
     REQUEST_RETRY_COUNT: envalid.num({ default: 2 }),
     STATS_POLLING_INTERVAL: envalid.num({ default: 30 }),
     STATS_REPORTING_INTERVAL: envalid.num({ default: 30 }),
-    STATS_RETRIEVE_URL: envalid.str({
-        default: ''
-    }),
-    START_INSTANCE_URL: envalid.str({
-        default: ''
-    }),
-    STOP_INSTANCE_URL: envalid.str({
-        default: ''
-    }),
+    STATS_RETRIEVE_URL: envalid.str(),
+    START_INSTANCE_URL: envalid.str(),
+    STOP_INSTANCE_URL: envalid.str(),
     ENABLE_STOP_INSTANCE: envalid.bool({ default: true }),
     ENVIRONMENT: envalid.str(),
     REGION: envalid.str(),
