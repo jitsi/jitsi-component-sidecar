@@ -1,7 +1,9 @@
 import * as dotenv from 'dotenv';
 import envalid from 'envalid';
+import os from 'os';
 
 import { ComponentType } from '../service/stats_reporter';
+import { genHexString } from '../util/random_util';
 
 const result = dotenv.config();
 
@@ -17,6 +19,9 @@ if (result.error) {
         throw result.error;
     }
 }
+
+const hostname = os.hostname();
+const moreUniqueHostname = `${hostname}-${genHexString(6)}`;
 
 const env = envalid.cleanEnv(process.env, {
     LOG_LEVEL: envalid.str({ default: 'info' }),
@@ -38,11 +43,11 @@ const env = envalid.cleanEnv(process.env, {
     ENVIRONMENT: envalid.str({ default: 'default-env' }),
     REGION: envalid.str({ default: 'default-region' }),
     COMPONENT_TYPE: envalid.str(),
-    INSTANCE_KEY: envalid.str(),
-    INSTANCE_NICK: envalid.str({ default: 'jibri' }),
+    INSTANCE_KEY: envalid.str({ default: moreUniqueHostname }),
+    INSTANCE_NICK: envalid.str({ default: moreUniqueHostname }),
     INSTANCE_METADATA: envalid.json({ default: '{}' }),
-    INSTANCE_ID: envalid.str({ default: '' }),
-    HOSTNAME: envalid.str({ default: '' }),
+    INSTANCE_ID: envalid.str({ default: hostname }),
+    HOSTNAME: envalid.str({ default: hostname }),
     VOLATILE_EVENTS: envalid.bool({ default: true }),
     SIP_CLIENT_USERNAME: envalid.str({ default: '' }),
     SIP_CLIENT_PASSWORD: envalid.str({ default: '' })
