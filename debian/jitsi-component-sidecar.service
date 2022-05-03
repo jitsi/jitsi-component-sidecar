@@ -1,0 +1,16 @@
+[Unit]
+Description=jitsi component sidecar System Service
+
+[Service]
+WorkingDirectory=/usr/share/jitsi-component-sidecar
+EnvironmentFile=/etc/jitsi/sidecar/env
+ExecStart=/usr/bin/node app.js
+StandardOutput=append:/var/log/jitsi/sidecar.log
+StandardError=append:/var/log/jitsi/sidecar.log
+Type=simple
+User=jitsi-sidecar
+Group=jitsi
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
