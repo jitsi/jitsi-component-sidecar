@@ -1,0 +1,14 @@
+Source: jitsi-component-sidecar
+Section: net
+Priority: extra
+Maintainer: Jitsi Team <dev@jitsi.org>
+Build-Depends: debhelper-compat (= 12), nodejs
+Standards-Version: 4.4.1
+Homepage: https://jitsi.org/meet
+
+Package: jitsi-component-sidecar
+Architecture: all
+Depends: ${misc:Depends}, openssl, redis, nodejs
+Description: The side car installed next to jibri and jigasi. Used to gather
+  health and stats and to send commands to route the instance to a meeting.
+  Communicates with jitsi-component-selector via asap jwt tokens.

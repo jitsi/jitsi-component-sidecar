@@ -1,0 +1,5 @@
+Template: jitsi-component-sidecar/selector-address
+Type: string
+Default: localhost
+Description: Selector address/dns:
+ The IP address or DND of the selector is needed in order to allow sidecar to communicate with it via websocket.
