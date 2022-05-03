@@ -1,5 +1,9 @@
 import * as dotenv from 'dotenv';
 import envalid from 'envalid';
+import os from 'os';
+
+import { ComponentType } from '../service/stats_reporter';
+import { genHexString } from '../util/random_util';
 
 const result = dotenv.config();
 
@@ -16,37 +20,34 @@ if (result.error) {
     }
 }
 
+const hostname = os.hostname();
+const moreUniqueHostname = `${hostname}-${genHexString(6)}`;
+
 const env = envalid.cleanEnv(process.env, {
     LOG_LEVEL: envalid.str({ default: 'info' }),
     PORT: envalid.num({ default: 8017 }),
     WS_SERVER_URL: envalid.str({ default: 'ws://localhost:8015' }),
     WS_SERVER_PATH: envalid.str({ default: '/jitsi-component-selector/ws' }),
     ASAP_SIGNING_KEY_FILE: envalid.str(),
-    ASAP_JWT_KID: envalid.str({ default: '' }),
+    ASAP_JWT_KID: envalid.str({ default: 'jitsi/default' }),
     ASAP_JWT_ISS: envalid.str({ default: 'jitsi-component-sidecar' }),
     ASAP_JWT_AUD: envalid.str({ default: 'jitsi-component-selector' }),
     REQUEST_TIMEOUT_MS: envalid.num({ default: 8000 }),
     REQUEST_RETRY_COUNT: envalid.num({ default: 2 }),
     STATS_POLLING_INTERVAL: envalid.num({ default: 30 }),
     STATS_REPORTING_INTERVAL: envalid.num({ default: 30 }),
-    STATS_RETRIEVE_URL: envalid.str({
-        default: ''
-    }),
-    START_INSTANCE_URL: envalid.str({
-        default: ''
-    }),
-    STOP_INSTANCE_URL: envalid.str({
-        default: ''
-    }),
+    STATS_RETRIEVE_URL: envalid.str({ default: undefined }),
+    START_INSTANCE_URL: envalid.str({ default: undefined }),
+    STOP_INSTANCE_URL: envalid.str({ default: undefined }),
     ENABLE_STOP_INSTANCE: envalid.bool({ default: true }),
-    ENVIRONMENT: envalid.str(),
-    REGION: envalid.str(),
+    ENVIRONMENT: envalid.str({ default: 'default-env' }),
+    REGION: envalid.str({ default: 'default-region' }),
     COMPONENT_TYPE: envalid.str(),
-    INSTANCE_KEY: envalid.str(),
-    INSTANCE_NICK: envalid.str({ default: 'jibri' }),
+    INSTANCE_KEY: envalid.str({ default: moreUniqueHostname }),
+    INSTANCE_NICK: envalid.str({ default: moreUniqueHostname }),
     INSTANCE_METADATA: envalid.json({ default: '{}' }),
-    INSTANCE_ID: envalid.str({ default: '' }),
-    HOSTNAME: envalid.str({ default: '' }),
+    INSTANCE_ID: envalid.str({ default: hostname }),
+    HOSTNAME: envalid.str({ default: hostname }),
     VOLATILE_EVENTS: envalid.bool({ default: true }),
     SIP_CLIENT_USERNAME: envalid.str({ default: '' }),
     SIP_CLIENT_PASSWORD: envalid.str({ default: '' })
@@ -69,9 +70,12 @@ export default {
 
     // number of seconds to wait before reporting stats
     StatsReportingInterval: env.STATS_REPORTING_INTERVAL,
-    StatsRetrieveURL: env.STATS_RETRIEVE_URL,
-    StartComponentURL: env.START_INSTANCE_URL,
-    StopComponentURL: env.STOP_INSTANCE_URL,
+    StatsRetrieveURL: env.STATS_RETRIEVE_URL || (env.COMPONENT_TYPE === ComponentType.Jigasi
+        ? 'http://localhost:8788/about/health' : 'http://localhost:2222/jibri/api/v1.0/health'),
+    StartComponentURL: env.START_INSTANCE_URL || (env.COMPONENT_TYPE === ComponentType.Jigasi
+        ? 'http://localhost:8788/api/v1.0/startService' : 'http://localhost:2222/jibri/api/v1.0/startService'),
+    StopComponentURL: env.STOP_INSTANCE_URL || (env.COMPONENT_TYPE === ComponentType.Jigasi
+        ? 'http://localhost:8788/api/v1.0/stopService' : 'http://localhost:2222/jibri/api/v1.0/stopService'),
     EnableStopComponent: env.ENABLE_STOP_INSTANCE,
     Environment: env.ENVIRONMENT,
     Region: env.REGION,

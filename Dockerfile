@@ -11,7 +11,7 @@ RUN npm ci --only=production
 COPY ./dist/. .
 
 # Copy the run script
-COPY ./build/run.sh .
+COPY ./resources/run.sh .
 
 # Run app
 EXPOSE 8080

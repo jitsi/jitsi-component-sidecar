@@ -108,3 +108,4 @@ config/*
 scripts/docker-build.sh
 .idea/
 jitsi-component-sidecar.iml
+bundle
