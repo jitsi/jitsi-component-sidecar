@@ -218,8 +218,12 @@ export class CommanderService {
             }
 
             if (startComponentRequest.sipClientParams) {
-                startComponentRequest.sipClientParams.userName = this.sipClientUsername;
-                startComponentRequest.sipClientParams.password = this.sipClientPassword;
+                if (!startComponentRequest.sipClientParams.userName) {
+                    startComponentRequest.sipClientParams.userName = this.sipClientUsername;
+                }
+                if (!startComponentRequest.sipClientParams.password) {
+                    startComponentRequest.sipClientParams.password = this.sipClientPassword;
+                }
             }
 
             try {
