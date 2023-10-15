@@ -81,9 +81,9 @@ const restServer = new RestServer({
 restServer.init();
 
 /**
- * Loop for collecting component stats
+ * Collect component stats
  */
-async function pollForCollectingStats() {
+async function collectStats() {
     const ctx = generateNewContext('stats-collector');
 
     try {
@@ -94,13 +94,12 @@ async function pollForCollectingStats() {
         logger.error(`Error collecting stats ${err}`, { err });
         statsReporter.setLatestStatsReport(undefined);
     }
-    setTimeout(pollForCollectingStats, config.StatsPollingInterval * 1000);
 }
 
 /**
- * Loop for polling component stats
+ * Report component stats
  */
-async function pollForReportingStats() {
+async function reportStats() {
     const ctx = generateNewContext('stats-reporter');
 
     try {
@@ -109,12 +108,19 @@ async function pollForReportingStats() {
         logger.info(`Error reporting stats ${err}`, { err });
         statsReporter.setLatestStatsReport(undefined);
     }
-    setTimeout(pollForReportingStats, config.StatsReportingInterval * 1000);
 }
 
-pollForCollectingStats().then(() => {
-    pollForReportingStats();
-});
+/**
+ * Loop for polling
+ */
+async function poll() {
+    await collectStats();
+    await reportStats();
+
+    setTimeout(poll, config.StatsReportingInterval * 1000);
+}
+
+poll();
 
 logger.warn('starting in unprotected api mode');
 
