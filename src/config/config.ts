@@ -32,6 +32,8 @@ const env = envalid.cleanEnv(process.env, {
     ASAP_JWT_KID: envalid.str({ default: 'jitsi/default' }),
     ASAP_JWT_ISS: envalid.str({ default: 'jitsi-component-sidecar' }),
     ASAP_JWT_AUD: envalid.str({ default: 'jitsi-component-selector' }),
+    ASAP_JWT_COMPONENT_KEY_CLAIM: envalid.str({ default: 'sub',
+        desc: 'The claim of the generated tokens which carries the INSTANCE_KEY' }),
     REQUEST_TIMEOUT_MS: envalid.num({ default: 8000 }),
     REQUEST_RETRY_COUNT: envalid.num({ default: 2 }),
     STATS_POLLING_INTERVAL: envalid.num({ default: 30 }),
@@ -62,6 +64,7 @@ export default {
     AsapJwtKid: env.ASAP_JWT_KID,
     AsapJwtIss: env.ASAP_JWT_ISS,
     AsapJwtAud: env.ASAP_JWT_AUD,
+    AsapJwtComponentKeyClaim: env.ASAP_JWT_COMPONENT_KEY_CLAIM,
     RequestTimeoutMs: env.REQUEST_TIMEOUT_MS,
     RequestRetryCount: env.REQUEST_RETRY_COUNT,
 

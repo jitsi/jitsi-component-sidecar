@@ -1,5 +1,5 @@
 import got, { CancelableRequest } from 'got';
-import { sign } from 'jsonwebtoken';
+import { sign, SignOptions } from 'jsonwebtoken';
 import NodeCache from 'node-cache';
 
 import { Context } from '../util/context';
@@ -9,6 +9,18 @@ export interface AsapRequestOptions {
     asapJwtIss: string;
     asapJwtAud: string;
     asapJwtKid: string;
+
+    /**
+     * The componentKey this sidecar acts as. When set, it is included in the generated tokens
+     * so that the selector can bind the connection to this component identity only.
+     */
+    componentKey?: string;
+
+    /**
+     * The claim used to carry the componentKey, defaults to 'sub'.
+     * It has to match the selector's SYSTEM_ASAP_JWT_COMPONENT_KEY_CLAIM.
+     */
+    componentKeyClaim?: string;
     cacheTTL?: number;
     requestTimeoutMs?: number;
     requestRetryCount?: number;
@@ -18,6 +30,8 @@ export interface OverrideableRequestOptions {
     requestTimeoutMs?: number;
 }
 
+const DEFAULT_COMPONENT_KEY_CLAIM = 'sub';
+
 /**
  */
 export default class AsapRequest {
@@ -26,6 +40,8 @@ export default class AsapRequest {
     private asapJwtIss: string;
     private asapJwtAud: string;
     private asapJwtKid: string;
+    private componentKey: string;
+    private componentKeyClaim: string;
     private cacheTTL = 60 * 45;
     private requestTimeoutMs = 3 * 1000;
     private requestRetryCount = 2;
@@ -39,6 +55,8 @@ export default class AsapRequest {
         this.asapJwtIss = options.asapJwtIss;
         this.asapJwtAud = options.asapJwtAud;
         this.asapJwtKid = options.asapJwtKid;
+        this.componentKey = options.componentKey;
+        this.componentKeyClaim = options.componentKeyClaim || DEFAULT_COMPONENT_KEY_CLAIM;
 
         if (options.requestTimeoutMs !== undefined) {
             this.requestTimeoutMs = options.requestTimeoutMs;
@@ -57,6 +75,8 @@ export default class AsapRequest {
     }
 
     /**
+     * Returns a signed token, generating a new one when the cached one expired.
+     * The token carries the component identity when a componentKey was configured.
      */
     authToken(): string {
         const cachedAuth: string = this.asapCache.get('asap');
@@ -65,13 +85,24 @@ export default class AsapRequest {
             return cachedAuth;
         }
 
-        const auth = sign({}, this.signingKey, {
+        const payload: { [claim: string]: string } = {};
+        const signOptions: SignOptions = {
             issuer: this.asapJwtIss,
             audience: this.asapJwtAud,
             algorithm: 'RS256',
             keyid: this.asapJwtKid,
             expiresIn: 60 * 60 // 1 hour
-        });
+        };
+
+        if (this.componentKey) {
+            if (this.componentKeyClaim === DEFAULT_COMPONENT_KEY_CLAIM) {
+                signOptions.subject = this.componentKey;
+            } else {
+                payload[this.componentKeyClaim] = this.componentKey;
+            }
+        }
+
+        const auth = sign(payload, this.signingKey, signOptions);
 
         this.asapCache.set('asap', auth);
 

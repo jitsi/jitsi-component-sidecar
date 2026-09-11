@@ -22,6 +22,8 @@ const asapRequest = new AsapRequest({
     asapJwtIss: config.AsapJwtIss,
     asapJwtAud: config.AsapJwtAud,
     asapJwtKid: config.AsapJwtKid,
+    componentKey: config.ComponentKey,
+    componentKeyClaim: config.AsapJwtComponentKeyClaim,
     requestTimeoutMs: config.RequestTimeoutMs,
     requestRetryCount: config.RequestRetryCount
 });
